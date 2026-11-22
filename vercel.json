@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/((?!assets/|sw.js|workbox-.*|manifest.webmanifest|icon.svg).*)", "destination": "/index.html" }],
+  "headers": [
+    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "no-referrer" },
+      { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co https://api.frankfurter.app https://cdn.jsdelivr.net https://tessdata.projectnaptha.com data:; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'" }
+    ] }
+  ]
+}
