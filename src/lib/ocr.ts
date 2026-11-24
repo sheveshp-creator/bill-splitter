@@ -36,7 +36,7 @@ const cleanName = (s: string) => s.replace(/[\s.:\-_|*₹$€£]+$/g, '').replac
 const newId = () => (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2))
 
 /** Pure receipt text parser (unit-tested). Everything it returns is meant to be user-corrected. */
-export function parseReceipt(lines: OcrLine[], currency = 'INR'): ParsedReceipt {
+export function parseReceipt(lines: OcrLine[], currency = 'USD'): ParsedReceipt {
   const out: ParsedReceipt = { items: [], tax: 0, service: 0, tip: 0, discount: 0 }
   for (const { text, confidence } of lines) {
     const t = text.replace(/\s+/g, ' ').trim()

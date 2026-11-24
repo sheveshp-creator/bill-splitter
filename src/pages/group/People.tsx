@@ -131,7 +131,7 @@ function Members({ data }: { data: GroupData }) {
                   if (upi.trim() && !isValidVpa(upi.trim())) return toast('That UPI ID looks wrong (e.g. name@bank)')
                   await patchMember(m, { name: sanitizeText(draft, 50) || m.name, upiId: upi.trim() || undefined }, `Renamed ${m.name} to ${draft}`); setEditing(null) }}>
                   <input aria-label="Name" className="input" value={draft} maxLength={50} onChange={(e) => setDraft(e.target.value)} />
-                  <input aria-label="UPI ID" className="input" placeholder="UPI ID (optional)" value={upi} onChange={(e) => setUpi(e.target.value)} />
+                  {data.group.baseCurrency === 'INR' && <input aria-label="UPI ID" className="input" placeholder="UPI ID (optional, India)" value={upi} onChange={(e) => setUpi(e.target.value)} />}
                   <div className="flex gap-2"><button className="btn-primary !min-h-[40px]">Save</button><button type="button" className="btn-ghost !min-h-[40px]" onClick={() => setEditing(null)}>Cancel</button></div>
                 </form>
               ) : (

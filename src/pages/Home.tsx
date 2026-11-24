@@ -11,6 +11,13 @@ import { dismissInstall, requestPersistence, useInstallHint } from '../lib/pwa'
 import { download } from '../lib/share'
 import { useSyncUi } from '../sync/engine'
 
+/** Guess a sensible default from the browser locale; users can change it. */
+function defaultCurrency(): string {
+  const region = (navigator.language.split('-')[1] ?? '').toUpperCase()
+  const map: Record<string, string> = { IN: 'INR', GB: 'GBP', AU: 'AUD', CA: 'CAD', SG: 'SGD', AE: 'AED', JP: 'JPY', CH: 'CHF', DE: 'EUR', FR: 'EUR', ES: 'EUR', IT: 'EUR', NL: 'EUR', IE: 'EUR' }
+  return map[region] ?? 'USD'
+}
+
 export default function Home() {
   const nav = useNavigate()
   const toast = useToast()
@@ -23,7 +30,7 @@ export default function Home() {
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [me, setMe] = useState('')
-  const [cur, setCur] = useState('INR')
+  const [cur, setCur] = useState(defaultCurrency())
   const [link, setLink] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const install = useInstallHint()
@@ -85,8 +92,8 @@ export default function Home() {
       {creating ? (
         <form onSubmit={create} className="card mb-4">
           <h2 className="font-bold mb-3">New group</h2>
-          <Field label="Group or trip name" htmlFor="gname"><input id="gname" className="input" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder="Goa trip" autoFocus /></Field>
-          <Field label="Your name" htmlFor="myname"><input id="myname" className="input" required maxLength={50} value={me} onChange={(e) => setMe(e.target.value)} placeholder="Amit" /></Field>
+          <Field label="Group or trip name" htmlFor="gname"><input id="gname" className="input" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder="Weekend trip, Flat 4B, Team lunch…" autoFocus /></Field>
+          <Field label="Your name" htmlFor="myname"><input id="myname" className="input" required maxLength={50} value={me} onChange={(e) => setMe(e.target.value)} placeholder="Alex" /></Field>
           <Field label="Base currency" htmlFor="cur" hint="Balances are shown in this currency.">
             <select id="cur" className="input" value={cur} onChange={(e) => setCur(e.target.value)}>{Object.keys(CURRENCY_DECIMALS).map((c) => <option key={c}>{c}</option>)}</select>
           </Field>

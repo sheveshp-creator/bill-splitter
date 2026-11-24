@@ -2,7 +2,7 @@ import type { Money } from './types'
 
 /** ISO 4217 minor-unit digits for the currencies we expose. */
 export const CURRENCY_DECIMALS: Record<string, number> = {
-  INR: 2, USD: 2, EUR: 2, GBP: 2, AUD: 2, CAD: 2, SGD: 2, AED: 2, CHF: 2, THB: 2,
+  USD: 2, EUR: 2, GBP: 2, INR: 2, AUD: 2, CAD: 2, SGD: 2, AED: 2, CHF: 2, THB: 2,
   JPY: 0, KRW: 0, VND: 0, IDR: 2,
   KWD: 3, BHD: 3, OMR: 3, JOD: 3,
 }
@@ -41,7 +41,8 @@ export function toDecimalString(minor: Money, code: string): string {
   return neg ? `-${out}` : out
 }
 
-export function formatMoney(minor: Money, code: string, locale = 'en-IN'): string {
+/** Digit grouping follows the currency's home convention: lakh/crore for INR, thousands (1,234,567) for everything else. */
+export function formatMoney(minor: Money, code: string, locale = 'en-US'): string {
   const d = decimals(code)
   const neg = minor < 0
   const dec = toDecimalString(Math.abs(minor), code)

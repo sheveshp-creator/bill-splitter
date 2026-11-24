@@ -132,7 +132,7 @@ Per-field last-write-wins. Stamps are `"<ISO time>~<device id>"`, so they're tot
 * Whoever holds a link has its access level; there are no per-person identities, so "who did it" in the log is the device's chosen name and can be wrong. Owner links are powerful, so share sparingly. Anyone who loses all owner devices can't manage links.
 * OCR (Tesseract.js) is rough on crumpled/low-light receipts and downloads its English language file on first use (needs internet once); everything it finds is editable by design.
 * Free exchange-rate API (frankfurter.app, ECB) doesn't cover every currency (e.g. KWD/AED); enter the rate manually. PDF uses the built-in font, so ₹ prints as "Rs".
-* Greedy debt simplification is not guaranteed to be the global minimum number of transfers. UPI deep links need a UPI app and only apply to INR.
+* Greedy debt simplification is not guaranteed to be the global minimum number of transfers. UPI payment links/QR are an optional India-only extra (shown only for INR groups); other currencies use the share text and reminder messages. The default currency follows the browser locale (USD if unknown).
 * Rate limiting is per IP/link inside Postgres, which is sufficient for casual abuse, not a determined attacker. There's no per-group quota on stored records.
 * Recurring expenses are generated when someone opens the app/group (no server scheduler); they split equally among active members.
 * Schema migrations: Dexie is at v1; future changes will need a new `version()`.

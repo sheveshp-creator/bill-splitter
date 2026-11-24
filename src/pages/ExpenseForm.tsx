@@ -211,7 +211,7 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
       {ro && <Banner tone="warn">You have view-only access to this group.</Banner>}
 
       <fieldset disabled={ro || saving} className="min-w-0">
-        <Field label="Title" htmlFor="title"><input id="title" className="input" maxLength={120} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Dinner at the beach shack" /></Field>
+        <Field label="Title" htmlFor="title"><input id="title" className="input" maxLength={120} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Dinner, taxi, groceries…" /></Field>
 
         {mode !== 'itemized' ? (
           <div className="flex gap-2">

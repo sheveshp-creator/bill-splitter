@@ -36,6 +36,20 @@ describe('money parsing / formatting', () => {
     expect(formatMoney(500, 'JPY')).toBe('¥500')
     expect(toDecimalString(5, 'KWD')).toBe('0.005')
   })
+  it('uses standard thousands grouping for non-INR currencies (THB, USD, EUR, GBP, JPY)', () => {
+    expect(formatMoney(13983817, 'THB')).toBe('฿139,838.17')
+    expect(formatMoney(123456789, 'USD')).toBe('$1,234,567.89')
+    expect(formatMoney(123456789, 'EUR')).toBe('€1,234,567.89')
+    expect(formatMoney(123456789, 'GBP')).toBe('£1,234,567.89')
+    expect(formatMoney(1234567, 'JPY')).toBe('¥1,234,567')
+    expect(formatMoney(1234567, 'KWD')).toBe('KWD 1,234.567')
+    expect(formatMoney(-99999, 'THB')).toBe('-฿999.99')
+    expect(formatMoney(100000, 'THB')).toBe('฿1,000.00')
+  })
+  it('INR keeps lakh/crore grouping', () => {
+    expect(formatMoney(13983817, 'INR')).toBe('₹1,39,838.17')
+    expect(formatMoney(1000000000, 'INR')).toBe('₹1,00,00,000.00')
+  })
   it('convert uses frozen rate, rounds half away from zero, handles decimals shift', () => {
     expect(convert(1000, 83.5, 'USD', 'INR')).toBe(83500)
     expect(convert(1, 0.5, 'INR', 'INR')).toBe(1)
