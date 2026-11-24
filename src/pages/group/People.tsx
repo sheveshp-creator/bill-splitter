@@ -53,7 +53,7 @@ function Sharing({ data }: { data: GroupData }) {
 
   return (
     <section className="card" aria-label="Sharing">
-      <h2 className="font-bold mb-2">Share this group</h2>
+      <h2 className="section-title mb-2">Share this group</h2>
       {!isConfigured() && <Banner tone="warn">Sync isn't configured on this deployment (missing Supabase keys). The app still works fully on this device.</Banner>}
       {!local?.token ? (
         <>
@@ -120,7 +120,7 @@ function Members({ data }: { data: GroupData }) {
 
   return (
     <section className="card" aria-label="Members">
-      <h2 className="font-bold mb-2">People</h2>
+      <h2 className="section-title mb-2">People</h2>
       <ul className="space-y-3">
         {list.map((m) => (
           <li key={m.id} className="border-t first:border-0 border-slate-200 dark:border-slate-800 pt-3 first:pt-0">
@@ -236,7 +236,7 @@ function Recurring({ data }: { data: GroupData }) {
   }
   return (
     <section className="card" aria-label="Recurring expenses">
-      <div className="flex items-center justify-between mb-2"><h2 className="font-bold">Recurring</h2>{data.canEdit && <button className="chip" onClick={() => setOpen(!open)}>{open ? 'Close' : '+ Add'}</button>}</div>
+      <div className="flex items-center justify-between mb-2"><h2 className="section-title">Recurring</h2>{data.canEdit && <button className="chip" onClick={() => setOpen(!open)}>{open ? 'Close' : '+ Add'}</button>}</div>
       {rules.length === 0 && !open && <p className="muted">Rent, subscriptions and other repeating costs are added automatically.</p>}
       <ul className="space-y-2">{rules.map((r) => (
         <li key={r.id} className="flex items-center gap-2"><span className="flex-1">{r.template.title} <span className="muted">· {formatMoney(r.template.amount, r.template.currency)} {r.frequency}</span></span>
@@ -266,8 +266,8 @@ function DataSection({ data }: { data: GroupData }) {
   const { group, local } = data
   return (
     <section className="card space-y-3" aria-label="Data and backup">
-      <h2 className="font-bold">Data &amp; backup</h2>
-      <p className="muted">{persisted === false ? '⚠ Your browser may clear this data if storage runs low (common on iPhone). Install the app to the Home Screen, share the group, and keep backups.' : persisted ? '✓ Storage is marked persistent.' : 'Data lives in this browser on this device.'}</p>
+      <h2 className="section-title">Data &amp; backup</h2>
+      <p className="muted">{persisted === false ? 'Warning: your browser may clear this data if storage runs low (common on iPhone). Install the app to the Home Screen, share the group, and keep backups.' : persisted ? 'Storage is marked persistent.' : 'Data lives in this browser on this device.'}</p>
       <div className="flex flex-wrap gap-2">
         <button className="btn-ghost" onClick={async () => download(`bill-splitter-backup-${todayLocal()}.json`, new Blob([JSON.stringify(await exportAll())], { type: 'application/json' }))}>Back up everything</button>
         <button className="btn-ghost" onClick={() => fileRef.current?.click()}>Restore backup</button>

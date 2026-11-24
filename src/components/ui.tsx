@@ -1,12 +1,13 @@
+import { Icon } from './icons'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
-export const AVATAR_COLORS = ['#0f766e', '#b45309', '#7c3aed', '#be123c', '#1d4ed8', '#4d7c0f', '#c2410c', '#0e7490']
+export const AVATAR_COLORS = ['#7c3f2a', '#2f5d50', '#4a4e8c', '#8a6a1c', '#6b2f4d', '#3b5b2a', '#8c4a1f', '#1f4e6b']
 export const colorFor = (id: string) => { let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AVATAR_COLORS[h % AVATAR_COLORS.length] }
 
 export function Avatar({ id, name, size = 36 }: { id: string; name: string; size?: number }) {
   return (
-    <span aria-hidden className="inline-flex items-center justify-center rounded-full text-white font-semibold shrink-0"
-      style={{ width: size, height: size, background: colorFor(id), fontSize: size * 0.42 }}>
+    <span aria-hidden className="inline-flex items-center justify-center rounded text-[#f6f1e7] font-mono font-medium shrink-0"
+      style={{ width: size, height: size, background: colorFor(id), fontSize: size * 0.44 }}>
       {(name.trim()[0] ?? '?').toUpperCase()}
     </span>
   )
@@ -16,9 +17,9 @@ export function Avatar({ id, name, size = 36 }: { id: string; name: string; size
 export function AvatarToggle({ id, name, on, onToggle, disabled }: { id: string; name: string; on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
     <button type="button" role="checkbox" aria-checked={on} aria-label={name} disabled={disabled} onClick={onToggle}
-      className={`flex flex-col items-center gap-1 p-1 rounded-xl min-w-[56px] ${on ? '' : 'opacity-45'}`}>
-      <span className={`rounded-full ${on ? 'ring-4 ring-teal-500' : ''}`}><Avatar id={id} name={name} size={40} /></span>
-      <span className="text-xs max-w-[64px] truncate">{name}</span>
+      className={`flex flex-col items-center gap-1 p-1.5 rounded min-w-[60px] border-2 ${on ? 'border-ink bg-mark/40' : 'border-transparent opacity-50'}`}>
+      <Avatar id={id} name={name} size={38} />
+      <span className="text-xs max-w-[64px] truncate font-medium">{name}</span>
     </button>
   )
 }
@@ -44,12 +45,12 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
     return () => { document.removeEventListener('keydown', onKey); prev?.focus() }
   }, [onClose])
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/55" onClick={onClose}>
       <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-white dark:bg-slate-900 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        className="w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-lg bg-card border-2 border-ink p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold">{title}</h2>
-          <button className="btn-ghost !min-h-[36px] !px-3" onClick={onClose} aria-label="Close">✕</button>
+          <h2 className="text-xl font-semibold">{title}</h2>
+          <button className="btn-ghost !min-h-[36px] !px-2" onClick={onClose} aria-label="Close"><Icon name="close" size={18} /></button>
         </div>
         {children}
       </div>
@@ -67,20 +68,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastCtx.Provider value={show}>
       {children}
       <div role="status" aria-live="polite" className="fixed bottom-24 inset-x-0 flex justify-center pointer-events-none z-[60]">
-        {msg && <div className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 rounded-full text-sm shadow-lg">{msg}</div>}
+        {msg && <div className="bg-ink text-on-ink px-4 py-2 rounded text-sm font-medium border-2 border-ink" style={{ boxShadow: '3px 3px 0 0 rgb(var(--mark))' }}>{msg}</div>}
       </div>
     </ToastCtx.Provider>
   )
 }
 
 export function Banner({ tone = 'info', children, onClose }: { tone?: 'info' | 'warn' | 'error'; children: ReactNode; onClose?: () => void }) {
-  const c = { info: 'bg-sky-50 border-sky-200 text-sky-900 dark:bg-sky-950 dark:border-sky-800 dark:text-sky-100',
-    warn: 'bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-950 dark:border-amber-700 dark:text-amber-100',
-    error: 'bg-red-50 border-red-300 text-red-900 dark:bg-red-950 dark:border-red-700 dark:text-red-100' }[tone]
+  // a left "tab" in the tone colour on a paper note, instead of a tinted alert box
+  const bar = { info: 'border-l-ink', warn: 'border-l-mark', error: 'border-l-owe' }[tone]
   return (
-    <div role={tone === 'info' ? 'status' : 'alert'} className={`rounded-xl border p-3 text-sm mb-3 flex gap-3 ${c}`}>
+    <div role={tone === 'info' ? 'status' : 'alert'} className={`rounded border border-rule border-l-[6px] ${bar} bg-card p-3 text-sm mb-3 flex gap-3`}>
       <div className="flex-1">{children}</div>
-      {onClose && <button onClick={onClose} aria-label="Dismiss" className="font-bold px-1">✕</button>}
+      {onClose && <button onClick={onClose} aria-label="Dismiss" className="px-1 text-muted hover:text-ink"><Icon name="close" size={16} /></button>}
     </div>
   )
 }

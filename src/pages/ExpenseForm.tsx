@@ -12,7 +12,7 @@ import { db } from '../db/db'
 import { newBase, saveExpense, setDeleted, uuid } from '../db/repo'
 import { compressReceipt } from '../lib/image'
 import { getRate } from '../lib/rates'
-import { CAT_ICON } from './group/Expenses'
+import { Icon } from '../components/icons'
 import { computeShares } from '../core/split'
 
 type Mode = 'equal' | 'exact' | 'percent' | 'shares' | 'itemized'
@@ -204,8 +204,8 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
   return (
     <main className="p-4 pb-32">
       <div className="flex items-center justify-between mb-3">
-        <Link to={`/g/${group.id}`} className="btn-ghost !min-h-[40px]">← Back</Link>
-        <h1 className="text-lg font-bold">{isNew ? 'Add expense' : 'Edit expense'}</h1>
+        <Link to={`/g/${group.id}`} className="btn-ghost !min-h-[40px]"><Icon name="back" size={18} />Back</Link>
+        <h1 className="text-xl font-semibold">{isNew ? 'New expense' : 'Edit expense'}</h1>
         <span className="w-16" />
       </div>
       {ro && <Banner tone="warn">You have view-only access to this group.</Banner>}
@@ -216,7 +216,7 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
         {mode !== 'itemized' ? (
           <div className="flex gap-2">
             <div className="flex-[2]"><Field label="Amount" htmlFor="amt" error={amountErr}>
-              <input id="amt" inputMode="decimal" autoFocus={isNew} className="input !text-3xl !font-extrabold !min-h-[64px]" value={amountStr} onChange={(e) => setAmountStr(e.target.value)} placeholder="0.00" aria-invalid={!!amountErr} /></Field></div>
+              <input id="amt" inputMode="decimal" autoFocus={isNew} className="input num !text-3xl !font-medium !min-h-[64px]" value={amountStr} onChange={(e) => setAmountStr(e.target.value)} placeholder="0.00" aria-invalid={!!amountErr} /></Field></div>
             <div className="flex-1"><Field label="Currency" htmlFor="cur">
               <select id="cur" className="input" value={currency} onChange={(e) => void changeCurrency(e.target.value)}>{Object.keys(CURRENCY_DECIMALS).map((c) => <option key={c}>{c}</option>)}</select></Field></div>
           </div>
@@ -234,13 +234,13 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
         <div role="radiogroup" aria-label="Category" className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-1 px-1">
           {CATS.map((c) => (
             <button key={c} type="button" role="radio" aria-checked={category === c} onClick={() => setCategory(c)}
-              className={`chip shrink-0 gap-1 ${category === c ? 'chip-on' : ''}`}><span aria-hidden>{CAT_ICON[c]}</span><span className="capitalize">{c}</span></button>
+              className={`chip shrink-0 gap-1 ${category === c ? 'chip-on' : ''}`}><Icon name={c} size={16} /><span className="capitalize">{c}</span></button>
           ))}
         </div>
 
         {/* ---- payers ---- */}
         <section className="card mb-3" aria-label="Who paid">
-          <div className="flex items-center justify-between mb-2"><h2 className="font-semibold">Paid by</h2>
+          <div className="flex items-center justify-between mb-2"><h2 className="section-title">Paid by</h2>
             <button type="button" className="chip" onClick={() => { setMultiPay(!multiPay); if (!multiPay && amount !== null) setPayAmts({ [payer]: toDecimalString(amount, currency) }) }}>{multiPay ? 'One person' : 'Multiple people'}</button></div>
           {!multiPay ? (
             <div role="radiogroup" aria-label="Paid by" className="flex flex-wrap">{people.map((m) => <AvatarToggle key={m.id} id={m.id} name={names[m.id]} on={payer === m.id} onToggle={() => setPayer(m.id)} />)}</div>
@@ -258,7 +258,7 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
 
         {/* ---- split ---- */}
         <section className="card mb-3" aria-label="How to split">
-          <h2 className="font-semibold mb-2">Split</h2>
+          <h2 className="section-title mb-2">Split</h2>
           <div role="tablist" aria-label="Split mode" className="flex flex-wrap gap-2 mb-3">
             {MODES.map(([m, label]) => <button type="button" role="tab" aria-selected={mode === m} key={m} className={`chip ${mode === m ? 'chip-on' : ''}`} onClick={() => setMode(m)}>{label}</button>)}
           </div>
@@ -295,8 +295,8 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
 
         {valid && amount !== null && (() => { try { const sh = computeShares(amount, spec); return (
           <section className="card mb-3" aria-label="Preview" aria-live="polite">
-            <h2 className="font-semibold mb-2">Each person pays</h2>
-            <ul className="space-y-1">{Object.entries(sh).filter(([, v]) => v !== 0).map(([k, v]) => <li key={k} className="flex items-center gap-2"><Avatar id={k} name={names[k] ?? '?'} size={24} /><span className="flex-1">{names[k] ?? '?'}</span><b>{formatMoney(v, currency)}</b></li>)}</ul>
+            <h2 className="section-title mb-2">Each person pays</h2>
+            <ul className="space-y-1">{Object.entries(sh).filter(([, v]) => v !== 0).map(([k, v]) => <li key={k} className="flex items-center gap-2"><Avatar id={k} name={names[k] ?? '?'} size={24} /><span className="flex-1">{names[k] ?? '?'}</span><b className="num font-medium">{formatMoney(v, currency)}</b></li>)}</ul>
           </section>) } catch { return null } })()}
 
         <details className="card mb-3" open={!!existing && (!!existing.notes || !!existing.photoId)}>
@@ -317,7 +317,7 @@ function Form({ data, existing }: { data: NonNullable<ReturnType<typeof useGroup
       )}
       {!valid && errors.length > 0 && <ul className="err mb-3 list-disc pl-5" aria-live="polite">{errors.map((e) => <li key={e}>{e}</li>)}</ul>}
 
-      <div className="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-slate-950/95 border-t border-slate-200 dark:border-slate-800 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
+      <div className="fixed bottom-0 inset-x-0 bg-card border-t-2 border-ink p-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-xl flex gap-2">
           {existing && !ro && <button type="button" className="btn-ghost" onClick={() => setConfirmDel(true)}>Delete</button>}
           <button type="button" className="btn-primary flex-1" disabled={!valid || ro || saving} onClick={() => void save()}>{saving ? 'Saving…' : 'Save expense'}</button>

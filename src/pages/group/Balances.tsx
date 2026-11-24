@@ -4,6 +4,7 @@ import { todayLocal } from '../../core/misc'
 import type { Settlement, Transfer } from '../../core/types'
 import type { GroupData } from '../../components/hooks'
 import QR from '../../components/QR'
+import { Icon } from '../../components/icons'
 import { Avatar, Banner, Field, Modal, copy, useToast } from '../../components/ui'
 import { newBase, saveSettlement, setDeleted, uuid } from '../../db/repo'
 import { getRate } from '../../lib/rates'
@@ -24,12 +25,12 @@ export default function Balances({ data }: { data: GroupData }) {
   return (
     <section aria-label="Balances" className="space-y-4">
       <div className="card">
-        <h2 className="font-bold mb-2">Net balances</h2>
+        <h2 className="section-title mb-2">Net balances</h2>
         <ul className="space-y-2">
           {[...rows, ...archivedWithBalance.map((m) => ({ m, v: balances[m.id] ?? 0 }))].map(({ m, v }) => (
             <li key={m.id} className="flex items-center gap-3"><Avatar id={m.id} name={names[m.id]} />
               <span className="flex-1 truncate">{names[m.id]}{m.archived && ' (archived)'}</span>
-              <span className={`font-semibold ${v > 0 ? 'text-emerald-700 dark:text-emerald-400' : v < 0 ? 'text-red-700 dark:text-red-400' : 'muted'}`}>
+              <span className={`num font-medium ${v > 0 ? 'text-get' : v < 0 ? 'text-owe' : 'muted'}`}>
                 {v > 0 ? 'gets back ' : v < 0 ? 'owes ' : 'settled '}{v !== 0 && formatMoney(Math.abs(v), cur)}</span></li>
           ))}
         </ul>
@@ -37,16 +38,16 @@ export default function Balances({ data }: { data: GroupData }) {
 
       <div className="card">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="font-bold">{simplify ? 'Simplified payments' : 'Everyone vs. everyone'}</h2>
-          <button className="chip" aria-pressed={simplify} onClick={() => setSimplify(!simplify)}>{simplify ? 'Simplified ✓' : 'Simplify debts'}</button>
+          <h2 className="section-title">{simplify ? 'Simplified payments' : 'Everyone vs. everyone'}</h2>
+          <button className="chip" aria-pressed={simplify} onClick={() => setSimplify(!simplify)}>{simplify ? 'Simplified' : 'Simplify debts'}</button>
         </div>
-        {transfers.length === 0 ? <p className="muted">🎉 Everyone is settled up.</p> : (
+        {transfers.length === 0 ? <p className="muted">Everyone is settled up. Nothing left to pay.</p> : (
           <ul className="space-y-3">
             {(simplify ? transfers : pairwise(balances)).map((t) => {
               const link = paymentRequestLink(upiOf(t.to), names[t.to], t.amount, cur, `${group.name}`)
               return (
                 <li key={`${t.from}-${t.to}`} className="border-t first:border-0 border-slate-200 dark:border-slate-800 pt-3 first:pt-0">
-                  <div className="flex items-center gap-2 mb-2"><Avatar id={t.from} name={names[t.from]} size={28} /><span className="flex-1"><b>{names[t.from]}</b> pays <b>{names[t.to]}</b></span><b>{formatMoney(t.amount, cur)}</b></div>
+                  <div className="flex items-center gap-2 mb-2"><Avatar id={t.from} name={names[t.from]} size={28} /><span className="flex-1"><b>{names[t.from]}</b> pays <b>{names[t.to]}</b></span><b className="num font-medium">{formatMoney(t.amount, cur)}</b></div>
                   <div className="flex flex-wrap gap-2">
                     {data.canEdit && <button className="btn-primary !min-h-[40px]" onClick={() => setSettle(t)}>Record payment</button>}
                     {link && <><a className="btn-ghost !min-h-[40px]" href={link}>Pay via UPI</a><button className="btn-ghost !min-h-[40px]" onClick={() => setQr({ link, title: `${names[t.from]} → ${names[t.to]} ${formatMoney(t.amount, cur)}` })}>UPI QR</button></>}
@@ -62,7 +63,7 @@ export default function Balances({ data }: { data: GroupData }) {
       </div>
 
       <div className="card space-y-2">
-        <h2 className="font-bold">Share summary</h2>
+        <h2 className="section-title">Share summary</h2>
         <pre className="whitespace-pre-wrap text-sm muted">{text}</pre>
         <div className="flex flex-wrap gap-2">
           <button className="btn-ghost" onClick={async () => toast((await shareText(text)) === 'copied' ? 'Copied to clipboard' : 'Shared')}>Share text</button>
@@ -74,13 +75,13 @@ export default function Balances({ data }: { data: GroupData }) {
       </div>
 
       <div className="card">
-        <h2 className="font-bold mb-2">Payments made</h2>
+        <h2 className="section-title mb-2">Payments made</h2>
         {data.settlements.filter((s) => !s.deleted).length === 0 && <p className="muted">None yet.</p>}
         <ul className="space-y-2">
           {data.settlements.filter((s) => !s.deleted).sort((a, b) => b.date.localeCompare(a.date)).map((s) => (
             <li key={s.id} className="flex items-center gap-2"><span className="flex-1 min-w-0 truncate">{names[s.from]} → {names[s.to]} <span className="muted">{s.date}{s.note && ` · ${s.note}`}</span></span>
               <b>{formatMoney(s.amount, s.currency)}</b>
-              {data.canEdit && <button className="btn-ghost !px-3 !min-h-[36px]" aria-label="Delete payment" onClick={() => void setDeleted('settlement', s.id, true, 'a payment')}>🗑</button>}</li>
+              {data.canEdit && <button className="btn-ghost !px-3 !min-h-[36px]" aria-label="Delete payment" onClick={() => void setDeleted('settlement', s.id, true, 'a payment')}><Icon name="trash" size={16} /></button>}</li>
           ))}
         </ul>
       </div>

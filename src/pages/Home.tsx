@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CURRENCY_DECIMALS } from '../core/currency'
 import { Banner, Field, useToast } from '../components/ui'
+import { Icon } from '../components/icons'
 import { db } from '../db/db'
 import { createGroup } from '../db/repo'
 import { backupDue, exportAll, importBackup, looksEvicted, markHasData } from '../lib/backup'
@@ -62,10 +63,11 @@ export default function Home() {
 
   return (
     <main className="p-4">
-      <header className="hero mb-4">
-        <div className="flex items-center justify-between"><span className="text-3xl" aria-hidden>💸</span><span className="text-sm hero-sub" role="status">{!sync.online ? '● Offline' : 'Works offline'}</span></div>
-        <h1 className="text-3xl font-extrabold mt-2">Bill Splitter</h1>
-        <p className="hero-sub">Split trips, dinners and rent. No sign-up needed.</p>
+      <header className="ticket">
+        <div className="flex items-center justify-between text-xs uppercase tracking-widest t-sub"><span>No. {String(groups?.length ?? 0).padStart(3, '0')}</span><span role="status">{!sync.online ? 'Offline' : 'Works offline'}</span></div>
+        <h1 className="text-4xl font-extrabold leading-none mt-3">Bill<br />Splitter</h1>
+        <div className="perf" />
+        <p className="t-sub text-sm">Split trips, dinners and rent. No sign-up, no fuss.</p>
       </header>
 
       {install.kind === 'prompt' && <Banner onClose={() => { dismissInstall(); location.reload() }}>Install this app for quick access and offline use. <button className="underline font-semibold" onClick={install.install}>Install</button></Banner>}
@@ -74,11 +76,11 @@ export default function Home() {
       {due && !evicted && <Banner tone="warn">It's been a while since your last backup. Your data lives only on this device until a group is shared. <button className="underline font-semibold" onClick={async () => { download(`bill-splitter-backup-${new Date().toISOString().slice(0, 10)}.json`, new Blob([JSON.stringify(await exportAll())], { type: 'application/json' })); setDue(false) }}>Back up now</button></Banner>}
 
       <ul className="space-y-3 mb-6" aria-label="Your groups">
-        {groups?.length === 0 && <li className="card text-center py-8"><div className="text-5xl mb-2" aria-hidden>🧳</div><p className="font-semibold">No groups yet</p><p className="muted">Start one for each trip or event, or explore the demo.</p></li>}
+        {groups?.length === 0 && <li className="card text-center py-8 border-dashed"><p className="display text-xl font-semibold">Nothing on the tab yet</p><p className="muted mt-1">Start a group for each trip or event, or explore the demo.</p></li>}
         {groups?.map((g) => (
           <li key={g.id}>
             <Link to={`/g/${g.id}`} className="card flex items-center gap-3 min-h-[68px]">
-              <span className="icon-circle !bg-teal-100 dark:!bg-teal-900 font-bold text-teal-800 dark:text-teal-200">{g.name.trim()[0]?.toUpperCase()}</span>
+              <span className="icon-circle display text-xl font-semibold">{g.name.trim()[0]?.toUpperCase()}</span>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold truncate">{g.name}</div>
                 <div className="muted">{g.local?.token ? `Shared · ${g.local.role}` : 'On this device only'}{g.archived ? ' · archived' : ''}</div>
@@ -91,7 +93,7 @@ export default function Home() {
 
       {creating ? (
         <form onSubmit={create} className="card mb-4">
-          <h2 className="font-bold mb-3">New group</h2>
+          <h2 className="section-title mb-3">New group</h2>
           <Field label="Group or trip name" htmlFor="gname"><input id="gname" className="input" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder="Weekend trip, Flat 4B, Team lunch…" autoFocus /></Field>
           <Field label="Your name" htmlFor="myname"><input id="myname" className="input" required maxLength={50} value={me} onChange={(e) => setMe(e.target.value)} placeholder="Alex" /></Field>
           <Field label="Base currency" htmlFor="cur" hint="Balances are shown in this currency.">
@@ -100,7 +102,7 @@ export default function Home() {
           <div className="flex gap-2"><button className="btn-primary flex-1">Create</button><button type="button" className="btn-ghost" onClick={() => setCreating(false)}>Cancel</button></div>
         </form>
       ) : (
-        <button className="btn-primary w-full mb-3 !min-h-[52px] text-base" onClick={() => setCreating(true)}>＋ New group</button>
+        <button className="btn-primary w-full mb-4 !min-h-[52px] text-base" onClick={() => setCreating(true)}><Icon name="plus" size={20} strokeWidth={2.4} />New group</button>
       )}
 
       <div className="card space-y-3">

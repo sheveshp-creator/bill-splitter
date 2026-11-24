@@ -37,7 +37,7 @@ export default function Join() {
 
   if (!state) return <p className="p-6 muted" role="status">Joining…</p>
   if ('error' in state) return (
-    <main className="p-6"><h1 className="text-xl font-bold mb-3">Can't open this link</h1>
+    <main className="p-6"><h1 className="text-2xl font-semibold mb-3">Can't open this link</h1>
       <Banner tone="error">{MESSAGES[state.error] ?? 'Something went wrong. Try again.'}</Banner>
       {!isConfigured() && <p className="muted">(This build has no Supabase credentials configured.)</p>}
       <Link to="/" className="btn-ghost mt-3">Back home</Link></main>
@@ -45,7 +45,7 @@ export default function Join() {
   const viewer = state.role === 'viewer'
   return (
     <main className="p-4">
-      <h1 className="text-2xl font-extrabold mb-1">Join {group?.name ?? '…'}</h1>
+      <h1 className="text-3xl font-extrabold mb-1">Join {group?.name ?? '…'}</h1>
       <p className="muted mb-4">Who are you? {viewer && 'You have view-only access.'}</p>
       <ul className="space-y-2 mb-4">
         {members?.filter((m) => !m.deleted && !m.archived).map((m) => (

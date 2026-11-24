@@ -3,9 +3,9 @@ import { isValidVpa, sanitizeText, upiLink } from '../core/misc'
 import type { Expense, Id, Transfer } from '../core/types'
 
 export function summaryText(groupName: string, transfers: Transfer[], names: Record<Id, string>, cur: string): string {
-  if (!transfers.length) return `${groupName}: all settled up ✅`
+  if (!transfers.length) return `${groupName}: all settled up`
   const lines = transfers.map((t) => `• ${names[t.from] ?? '?'} owes ${names[t.to] ?? '?'} ${formatMoney(t.amount, cur)}`)
-  return `💸 ${groupName} — who owes whom\n${lines.join('\n')}`
+  return `${groupName} — who owes whom\n${lines.join('\n')}`
 }
 export function reminderMessage(debtor: string, creditor: string, amount: number, cur: string, groupName: string, upi?: string): string {
   const base = `Hi ${debtor}, a gentle nudge: you owe ${creditor} ${formatMoney(amount, cur)} for "${groupName}".`
@@ -55,16 +55,15 @@ export function summaryPng(groupName: string, transfers: Transfer[], names: Reco
   const W = 800, row = 64, H = 200 + Math.max(1, transfers.length) * row
   const c = document.createElement('canvas'); c.width = W; c.height = H
   const g = c.getContext('2d')!
-  g.fillStyle = '#0f766e'; g.fillRect(0, 0, W, 130)
-  g.fillStyle = '#fff'; g.font = '700 40px system-ui, sans-serif'; g.fillText(sanitizeText(groupName, 30), 40, 70)
-  g.font = '400 22px system-ui, sans-serif'; g.fillText('Who owes whom', 40, 105)
-  g.fillStyle = '#fff'; g.fillRect(0, 130, W, H - 130)
-  g.fillStyle = '#0f172a'; g.font = '600 28px system-ui, sans-serif'
-  if (!transfers.length) g.fillText('All settled up ✅', 40, 200)
+  g.fillStyle = '#f4efe4'; g.fillRect(0, 0, W, H); g.fillStyle = '#1c1917'; g.fillRect(0, 0, W, 130)
+  g.fillStyle = '#f4efe4'; g.font = '700 40px Georgia, serif'; g.fillText(sanitizeText(groupName, 30), 40, 70)
+  g.font = '400 22px system-ui, sans-serif'; g.fillStyle = '#f4d03f'; g.fillText('WHO OWES WHOM', 40, 105)
+    g.fillStyle = '#1c1917'; g.font = '600 28px system-ui, sans-serif'
+  if (!transfers.length) g.fillText('All settled up', 40, 200)
   transfers.forEach((t, i) => {
     const y = 195 + i * row
-    g.fillStyle = '#0f172a'; g.fillText(`${sanitizeText(names[t.from] ?? '?', 20)} → ${sanitizeText(names[t.to] ?? '?', 20)}`, 40, y)
-    g.fillStyle = '#0f766e'; g.textAlign = 'right'; g.fillText(formatMoney(t.amount, cur), W - 40, y); g.textAlign = 'left'
+    g.fillStyle = '#1c1917'; g.font = '600 28px system-ui, sans-serif'; g.fillText(`${sanitizeText(names[t.from] ?? '?', 20)} → ${sanitizeText(names[t.to] ?? '?', 20)}`, 40, y)
+    g.fillStyle = '#b7361e'; g.font = '500 28px ui-monospace, monospace'; g.textAlign = 'right'; g.fillText(formatMoney(t.amount, cur), W - 40, y); g.textAlign = 'left'
   })
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('png failed'))), 'image/png'))
 }

@@ -2,24 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light dark; }
+/* ---- Design tokens: "paper ledger". RGB triplets so Tailwind can apply alpha. ---- */
+:root {
+  --paper: 244 239 228;   /* page */
+  --card: 252 250 244;    /* raised sheet */
+  --ink: 28 25 23;        /* text + primary actions */
+  --on-ink: 244 239 228;
+  --rule: 216 207 189;    /* hairlines */
+  --muted: 104 97 86;
+  --owe: 183 54 30;       /* stamp red: money you owe */
+  --get: 30 96 66;        /* ledger green: money owed to you */
+  --mark: 244 208 63;     /* highlighter */
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: 22 20 16; --card: 32 29 23; --ink: 238 231 214; --on-ink: 22 20 16;
+    --rule: 66 60 49; --muted: 168 159 141; --owe: 242 117 88; --get: 118 195 154; --mark: 226 186 52;
+    color-scheme: dark;
+  }
+}
+
 html, body, #root { min-height: 100%; }
-body { @apply bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased; -webkit-tap-highlight-color: transparent; }
-:focus-visible { outline: 3px solid #14b8a6; outline-offset: 2px; }
+body {
+  @apply font-sans text-ink antialiased;
+  background-color: rgb(var(--paper));
+  background-image: radial-gradient(rgb(var(--rule) / .55) 1px, transparent 1px);
+  background-size: 18px 18px;
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3, .display { @apply font-display; font-variation-settings: 'opsz' 72; letter-spacing: -.01em; }
+.num { @apply font-mono; font-feature-settings: 'zero' 1; letter-spacing: -.02em; }
+::selection { background: rgb(var(--mark) / .6); }
+:focus-visible { outline: 2px solid rgb(var(--ink)); outline-offset: 3px; box-shadow: 0 0 0 5px rgb(var(--mark)); border-radius: 4px; }
 
 @layer components {
-  .card { @apply rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 p-4 shadow-[0_2px_12px_rgba(15,23,42,.06)]; }
-  .hero { @apply rounded-3xl text-white p-5 shadow-lg bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-500; }
-  .hero .muted, .hero-sub { @apply text-teal-50/90; }
-  .icon-circle { @apply inline-flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 w-11 h-11 text-xl shrink-0; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 min-h-[44px] text-sm font-semibold transition active:scale-[.98] disabled:opacity-50 disabled:pointer-events-none; }
-  .btn-primary { @apply btn bg-teal-700 text-white hover:bg-teal-800 shadow-md shadow-teal-700/20; }
-  .btn-ghost { @apply btn bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700; }
-  .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
-  .input { @apply w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 min-h-[44px] text-base; }
-  .label { @apply block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1; }
-  .muted { @apply text-sm text-slate-600 dark:text-slate-400; }
-  .chip { @apply inline-flex items-center rounded-full px-3 min-h-[36px] text-sm border border-slate-300 dark:border-slate-700; }
-  .chip-on { @apply bg-teal-700 border-teal-700 text-white; }
-  .err { @apply text-sm text-red-700 dark:text-red-400 font-medium; }
+  /* flat sheet of paper with a hairline border, no soft shadows */
+  .card { @apply rounded-md bg-card border border-rule p-4; }
+  /* the receipt ticket header */
+  .ticket { @apply relative bg-ink text-on-ink p-5 pb-6 mb-6; border-radius: 6px 6px 0 0; }
+  .ticket::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -9px; height: 10px;
+    background: radial-gradient(circle at 9px -1px, transparent 6.5px, rgb(var(--ink)) 7px) repeat-x; background-size: 18px 10px;
+  }
+  .ticket .perf { border-top: 2px dashed rgb(var(--on-ink) / .35); @apply my-3; }
+  .ticket .t-sub { color: rgb(var(--on-ink) / .72); }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded px-4 min-h-[44px] text-sm font-semibold border-2 border-ink transition active:translate-y-px disabled:opacity-40 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-ink text-on-ink; box-shadow: 3px 3px 0 0 rgb(var(--mark)); }
+  .btn-primary:active { box-shadow: 1px 1px 0 0 rgb(var(--mark)); transform: translate(2px, 2px); }
+  .btn-ghost { @apply btn bg-transparent text-ink border-rule hover:border-ink; }
+  .btn-danger { @apply btn bg-owe text-white border-owe; }
+  .input { @apply w-full rounded border-2 border-rule bg-card px-3 min-h-[44px] text-base text-ink placeholder:text-muted/70 focus:border-ink; }
+  .label { @apply block text-xs font-semibold uppercase tracking-wider text-muted mb-1; }
+  .muted { @apply text-sm text-muted; }
+  .chip { @apply inline-flex items-center rounded border border-rule bg-card px-3 min-h-[36px] text-sm font-medium hover:border-ink; }
+  .chip-on { @apply bg-ink text-on-ink border-ink; }
+  .err { @apply text-sm font-semibold text-owe; }
+  .icon-circle { @apply inline-flex items-center justify-center rounded border border-rule bg-paper w-11 h-11 shrink-0 text-ink; }
+  .rule-dash { border-top: 1.5px dashed rgb(var(--rule)); }
+  .section-title { @apply font-display text-lg font-semibold; }
 }

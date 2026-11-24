@@ -7,6 +7,7 @@ import { compressReceipt } from '../lib/image'
 import { LOW_CONFIDENCE, parseReceipt, runOcr } from '../lib/ocr'
 import { uuid } from '../db/repo'
 import { AvatarToggle } from './ui'
+import { Icon } from './icons'
 
 export interface Draft { id: string; name: string; qty: number; priceStr: string; units: string[][]; confidence?: number }
 export interface ChargeDraft { type: 'percent' | 'flat'; value: string }
@@ -85,7 +86,7 @@ export default function ItemizedEditor({ members, currency, drafts, setDrafts, e
   return (
     <section aria-label="Itemized receipt" className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="btn-ghost" disabled={disabled || !!busy} onClick={() => fileRef.current?.click()}>📷 Scan receipt</button>
+        <button type="button" className="btn-ghost" disabled={disabled || !!busy} onClick={() => fileRef.current?.click()}><Icon name="camera" size={18} />Scan receipt</button>
         <button type="button" className="btn-ghost" disabled={disabled}
           onClick={() => setDrafts([...drafts, { id: uuid(), name: '', qty: 1, priceStr: '', units: [[]] }])}>+ Add item</button>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden aria-label="Receipt photo" onChange={(e) => void scan(e.target.files?.[0])} />
@@ -98,10 +99,10 @@ export default function ItemizedEditor({ members, currency, drafts, setDrafts, e
         const low = (d.confidence ?? 100) < LOW_CONFIDENCE
         const priceBad = d.priceStr !== '' && parseAmount(d.priceStr, currency) === null
         return (
-          <div key={d.id} className={`card !p-3 ${low ? '!border-amber-500 !border-2' : ''}`}>
+          <div key={d.id} className={`card !p-3 ${low ? '!border-mark !border-4' : ''}`}>
             <div className="flex gap-2 mb-2">
               <input aria-label={`Item ${idx + 1} name`} className="input" placeholder="Item" value={d.name} disabled={disabled} maxLength={80} onChange={(e) => patch(d.id, { name: e.target.value })} />
-              <button type="button" className="btn-ghost !px-3" aria-label={`Remove item ${d.name || idx + 1}`} disabled={disabled} onClick={() => setDrafts(drafts.filter((x) => x.id !== d.id))}>🗑</button>
+              <button type="button" className="btn-ghost !px-3" aria-label={`Remove item ${d.name || idx + 1}`} disabled={disabled} onClick={() => setDrafts(drafts.filter((x) => x.id !== d.id))}><Icon name="trash" size={16} /></button>
             </div>
             <div className="flex gap-2 mb-2">
               <label className="flex-1"><span className="label">Qty</span>
@@ -128,7 +129,7 @@ export default function ItemizedEditor({ members, currency, drafts, setDrafts, e
         <legend className="font-semibold px-1">Tax, tip &amp; discounts</legend>
         {(['tax', 'service', 'tip', 'discount'] as const).map((k) => (
           <div key={k} className="flex gap-2 items-end">
-            <label className="flex-1"><span className="label capitalize">{k === 'service' ? 'Service charge' : k}</span>
+            <label className="flex-1"><span className="label">{k === 'service' ? 'Service charge' : k}</span>
               <input inputMode="decimal" className="input" value={extras[k].value} onChange={(e) => setExtras({ ...extras, [k]: { ...extras[k], value: e.target.value } })} /></label>
             <div role="group" aria-label={`${k} type`} className="flex">
               {(['percent', 'flat'] as const).map((t) => (
@@ -148,7 +149,7 @@ export default function ItemizedEditor({ members, currency, drafts, setDrafts, e
         {r.tax > 0 && <div className="flex justify-between"><span>Tax</span><span>{formatMoney(r.tax, currency)}</span></div>}
         {r.service > 0 && <div className="flex justify-between"><span>Service</span><span>{formatMoney(r.service, currency)}</span></div>}
         {r.tip > 0 && <div className="flex justify-between"><span>Tip</span><span>{formatMoney(r.tip, currency)}</span></div>}
-        <div className="flex justify-between font-bold text-slate-900 dark:text-white"><span>Total</span><span>{formatMoney(r.total, currency)}</span></div>
+        <div className="flex justify-between font-semibold text-ink border-t-2 border-dashed border-rule pt-2 mt-1"><span>Total</span><span className="num">{formatMoney(r.total, currency)}</span></div>
       </div>
     </section>
   )

@@ -1,6 +1,6 @@
 # Bill Splitter
 
-Mobile-first, offline-first PWA for splitting group expenses. React + TypeScript + Vite + Tailwind, Dexie (IndexedDB) on the device, optional Supabase sync with **no accounts** (token links). Everything used is free/open source.
+Mobile-first, offline-first PWA for splitting group expenses, with a "paper ledger" look: receipt-style tickets, serif headings and monospaced amounts. React + TypeScript + Vite + Tailwind, Dexie (IndexedDB) on the device, optional Supabase sync with **no accounts** (token links). Everything used is free/open source.
 
 <p align="center"><img src="docs/screenshots/overview.png" alt="Bill Splitter screens" width="100%"></p>
 
@@ -21,12 +21,23 @@ Mobile-first, offline-first PWA for splitting group expenses. React + TypeScript
 
 > Screenshots are of the built-in demo group (**Try demo group** on the home screen).
 
+## Design
+
+The UI is themed as a paper ledger rather than a generic app template:
+
+* **Palette:** warm paper background with a faint dot grid, near-black ink, and one accent per role: stamp red for money you owe, ledger green for money owed to you, highlighter yellow for the active tab and selected items. Dark mode is a matching warm charcoal.
+* **Type:** Fraunces (serif) for headings, IBM Plex Sans for text, IBM Plex Mono for every amount. Fonts are bundled via `@fontsource`, so they work offline.
+* **Shapes:** a receipt-style "ticket" header with a dashed divider and perforated edge, flat bordered sheets instead of soft shadows, 6px corners, solid ink buttons with a hard offset shadow, and square initial "stamps" instead of round avatars.
+* **Icons:** a small custom line-icon set (`src/components/icons.tsx`), with no emoji in the UI.
+* **Theming lives in one place:** colors are CSS variables in [`src/index.css`](src/index.css) and mapped to Tailwind in [`tailwind.config.js`](tailwind.config.js), so a re-theme is a few lines.
+
 ## Quick start
 
 ```bash
 npm install
 npm run dev          # http://localhost:5173  (works fully offline-first without Supabase)
-npm test             # 118 tests (unit, property-based, SQL/RLS, two-device sync)
+npm run share        # dev server + ngrok tunnel for phone testing (see below)
+npm test             # 120 tests (unit, property-based, SQL/RLS, two-device sync)
 npm run build        # type-check + production build + service worker
 ```
 
@@ -65,6 +76,7 @@ src/db/        Dexie schema + repo.ts (the ONLY write path: record + audit entry
 src/sync/      merge.ts (per-field LWW, stamps, tokens) · engine.ts (pull→push, invites) · remote.ts (RPC wrapper)
 src/lib/       ocr (Tesseract + receipt parser), image (compress/EXIF strip), backup, share/export, rates, pwa, demo
 src/pages/     Home, Join, Group (+ Expenses/Balances/Activity/People), ExpenseForm
+src/components/ shared UI (ui.tsx, icons.tsx, QR, ItemizedEditor), data hooks
 supabase/      migrations/0001_init.sql
 tests/         core, balances, merge, lib, rls (real SQL in PGlite), sync (2 devices through the real SQL)
 ```
@@ -126,7 +138,7 @@ Per-field last-write-wins. Stamps are `"<ISO time>~<device id>"`, so they're tot
 
 ## Known limitations (please read)
 
-* **Not verified on a live Supabase project or a deployed Vercel site.** SQL is tested in PGlite (Postgres-in-WASM); the browser was smoke-tested in desktop Chrome (mobile viewport, offline reload). **Not tested on a real iPhone**, nor tested: Web Share, camera capture, real OCR on real receipts, PDF output, `navigator.storage.persist()` outcomes.
+* **Verified live against a real Supabase project** (create group, invite, push/pull, revoke, delete) and SQL is also tested in PGlite (Postgres-in-WASM); the browser was smoke-tested in desktop Chrome (mobile viewport, offline reload). **Not tested on a real iPhone**, nor tested: Web Share, camera capture, real OCR on real receipts, PDF output, `navigator.storage.persist()` outcomes.
 * **No Realtime:** polling every 8 s (see access-control section). Photos are **device-local only**, not synced.
 * **Evicted-storage detection** relies on a `localStorage`/IndexedDB marker; if iOS wipes *all* site data the app looks like a fresh install, so the first-run screen offers "Restore backup" and "paste invite link".
 * Whoever holds a link has its access level; there are no per-person identities, so "who did it" in the log is the device's chosen name and can be wrong. Owner links are powerful, so share sparingly. Anyone who loses all owner devices can't manage links.

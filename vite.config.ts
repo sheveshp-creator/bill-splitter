@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'Bill Splitter', short_name: 'Splitter',
         description: 'Split bills with friends. Works offline.',
-        theme_color: '#0f766e', background_color: '#0f172a',
+        theme_color: '#1c1917', background_color: '#f4efe4',
         display: 'standalone', start_url: '/', scope: '/',
         icons: [
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
